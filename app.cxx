@@ -1,63 +1,103 @@
 #include <iostream>
 #include <iomanip>
+#include <conio.h>
 
 using namespace std;
 
-int selectCurrency();
+int selectCurrency(int size);
 double getAmount(string currency);
+void showCurrencies(int size, const string currencyNames[]);
 
 int main(){
-    const double currencies[] = {
-        1, //1 because its the standard. USD
-        1.40, //cad
-        0.79, //gbp
-        .95, //eur
-        4479.00, //cop
-        154.68 //jpy
-    };
+    //En orden: USD, CAD, GBP, EUR, COP, JPY.
+    //El precio debe estar en el mismo orden que la moneda
+    const double currencies[] = {1, 1.40, 0.79, .95, 4479.00, 154.68};
+    const string currencyNames[] = {"USD","CAD","GBP","EUR","COP","JPY"};
+    int size = sizeof(currencyNames) / sizeof(currencyNames[0]);
 
-    const string currencyNames[] = {
-        "USD",
-        "CAD",
-        "GBP",
-        "EUR",
-        "COP",
-        "JPY"
-    };
+    do{
+        cout << "----------------------\n";
+        cout << "Convertidor de Monedas\n"<< "Proyecto por: Anthony, Dakota, Lindsay, Lus y Jesus\n";
+        cout << "----------------------\n";
 
-    cout << "Convertidor de divisas\n";
+        cout << "Seleccione la moneda que quiere convertir\n" << "**********************\n";
 
-    cout << "Seleccione la moneda que quiere cambiar\n";
-    int current = selectCurrency() - 1;
-    cout << currencyNames[current] << " Seleccionado\n";
+        showCurrencies(size, currencyNames);
+        int current = selectCurrency(size);
 
-    cout << "Seleccione la moneda a la que quiere convertir\n";
-    int target = selectCurrency() - 1;
-    cout << currencyNames[target] << " Seleccionado\n";
+        cout << currencyNames[current] << " Seleccionado\n"<< "Seleccione la moneda a la que quiere convertir\n";
 
-    cout << setprecision(2) << fixed << getAmount(currencyNames[current]) * currencies[current] * currencies[target] << " " << currencyNames[target];
+        showCurrencies(size, currencyNames);
+        int target = selectCurrency(size);
+        cout << currencyNames[target] << " Seleccionado\n";
+
+        if(current == target){
+            cout << "Error. Ha seleccionado la misma moneda dos veces.\n";
+        }else{
+            cout << "**********************\n";
+
+            cout << setprecision(2) << fixed <<
+            getAmount(currencyNames[current]) * currencies[current] * currencies[target] << " " << currencyNames[target] << '\n';
+        }
+
+        cout << "\nPresione cualquier tecla para continuar\n";
+        getch();
+
+
+    }while(true);
+
     return 0;
 }
 
-int selectCurrency(){
-    cout << "1 para USD\n";
-    cout << "2 para CAD\n";
-    cout << "3 para EUR\n";
-    cout << "4 para GBP\n";
-    cout << "5 para COP\n";
-    cout << "6 para JPY\n";
-
+int selectCurrency(int size){
     int currencySelect;
-    cin >> currencySelect;
-    cout << "*********\n";
-    return currencySelect;
+    
+    do{
+        cin >> currencySelect;
+
+        // Comprobar que sea un numero y no una letra
+        if(!cin){
+            currencySelect = -1;
+        }
+
+        cout << "**********************\n";
+
+        //Usar 0 para salir del programa
+        if(currencySelect == 0){
+            cout << "Gracias por usar el Convertidor de Monedas\n" << "Presione cualquier tecla para salir";
+            getch();
+
+            exit(0);
+        }else if(currencySelect < 1 || currencySelect > size){
+            // Error si el usuario pone un numero o letra
+            cout << "Error. Seleccione un numero (1-" << size << ")\n";
+        }
+
+        fflush(stdin);
+        cin.clear();
+    }while(currencySelect < 0 || currencySelect > size);
+    
+    return currencySelect - 1;
+}
+
+void showCurrencies(int size, const string currencyNames[]){
+    for(int i = 0; i < size; i++){
+        cout << i + 1 << " para " << currencyNames[i] << '\n';
+    }
+    cout << "0 para salir\n";
 }
 
 double getAmount(string currency){
     double amount;
-
-    cout << "Digite una cantidad en: " << currency << ": ";
+    
+    cout << "Digite una cantidad en " << currency << ": ";
     cin >> amount;
 
+    //la funcion se repite hasta que sea un numero y no una letra
+    if(cin.fail()){
+        cout << "Error. Digite una cantidad valida\n";
+        amount = getAmount(currency);
+    }
+    
     return amount;
 }
